@@ -53,8 +53,10 @@ $!+]::Send {Ctrl Down}{Tab Down}{Tab Up}{Ctrl Up}
 $!+[::Send {Ctrl Down}{Shift Down}{Tab Down}{Tab Up}{Shift Up}{Ctrl Up}
 $!l::Send ^l
 
-$!=::Send ^{=}
+$!=::Send ^{=} ; zoom
 $!-::Send ^{-}
+
+$!+n::Send ^+n
 
 ; Screenshots
 
