@@ -84,6 +84,7 @@ $Pause::Send {Volume_Up}
 ; vscode 
 $!,::Send ^,
 $!+p::Send ^+p
+$!Enter::Send ^{Enter}
 
 ; navigation, selection, delete a word/till end
 
