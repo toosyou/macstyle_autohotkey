@@ -69,12 +69,15 @@ $!+4::Send <#+s
 $!Space::Send !{Shift}
 
 $CapsLock::
-    KeyWait, CapsLock, T.1 ;500 ms
-    IF ErrorLevel ; long press toggle capslock
+    KeyWait, CapsLock, T.2 ;wait for the key to be released
+    
+    if(ErrorLevel = 1){ ; long press toggle capslock
         SetCapsLockState % !GetKeyState("CapsLock", "T") ; toggle capslock 
-    Else ; short press, switch language, turn capslock off
+    }
+    else{ ; short press, switch language, turn capslock off
         SetCapsLockState, off
         Send {LShift}
+    }
     KeyWait, CapsLock
     Return
 
