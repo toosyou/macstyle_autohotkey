@@ -69,15 +69,17 @@ $!+4::Send <#+s
 $!Space::Send !{Shift}
 
 $CapsLock::
-    KeyWait, CapsLock, T.2 ;wait for the key to be released
-    
-    if(ErrorLevel = 1){ ; long press toggle capslock
-        SetCapsLockState % !GetKeyState("CapsLock", "T") ; toggle capslock 
-    }
-    else{ ; short press, switch language, turn capslock off
+    WinGet, WinID,, A
+	thread_id := DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
+	current_language := DllCall("GetKeyboardLayout", "UInt", thread_id, "UInt")
+
+    if (current_language == 0x04040404){ ; zh-cht
         SetCapsLockState, off
         Send {LShift}
+    }else{ ; en
+        SetCapsLockState % !GetKeyState("CapsLock", "T") ; toggle capslock 
     }
+    
     KeyWait, CapsLock
     Return
 
@@ -114,3 +116,5 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
 $^Space:: Send <#{Space}
+
+$!LButton::Send ^{LButton}
