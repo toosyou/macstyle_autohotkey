@@ -90,6 +90,7 @@ $Pause::Send {Volume_Up}
 
 ; vscode 
 $!,::Send ^,
+$!.::Send ^.
 $!+p::Send ^+p
 $!Enter::Send ^{Enter}
 
@@ -118,3 +119,8 @@ $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 $^Space:: Send <#{Space}
 
 $!LButton::Send ^{LButton}
+$!+Backspace::
+    MsgBox, 3, Confirm, Clean the recycle bin?
+    IfMsgBox Yes
+        FileRecycleEmpty
+    Return
