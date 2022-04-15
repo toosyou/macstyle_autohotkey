@@ -27,7 +27,7 @@ $!r::Send ^r
 $!m::Send {LWin Down}{Down}{LWin Up}
 $!`::Send {Alt Down}{Shift Down}{Tab}{Shift Up}
 
-$F11::Send <#d ; show desktop
+$F11::Send #d ; show desktop
 
 ; delete
 $!Backspace:: Send ^d
@@ -60,7 +60,7 @@ $!+n::Send ^+n
 
 ; Screenshots
 
-$!+4::Send <#+s
+$!+4::Send {LWinDown}{ShiftDown}{s}{ShiftUp}{LWinUp}
 
 ; input methods
 
@@ -116,7 +116,7 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 
 $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
-$^Space:: Send <#{Space}
+$^Space::Send #{Space}
 
 $!LButton::Send ^{LButton}
 $!+Backspace::
