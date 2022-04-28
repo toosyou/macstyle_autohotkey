@@ -116,7 +116,7 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 
 ; $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
-$^Space::Send #{Space}
+$^Space::Send {LWinDown}{Space}{LWin Up}
 
 $!LButton::Send ^{LButton}
 $!+Backspace::
