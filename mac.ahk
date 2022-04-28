@@ -66,7 +66,7 @@ $!+4::Send {LWinDown}{ShiftDown}{s}{ShiftUp}{LWinUp}
 
 ; $+,::Send ^,
 ; $+.::Send ^.
-$!Space::Send !{Shift}
+$!Space::Send {Alt Down}{Shift Down}{Alt Up}{Shift Up}
 
 $CapsLock::
     WinGet, WinID,, A
@@ -114,7 +114,7 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 !BS::Send {LShift down}{Home}{LShift Up}{Del}
 #BS::Send {LCtrl down}{BS}{LCtrl up}
 
-$#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
+; $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
 $^Space::Send #{Space}
 
