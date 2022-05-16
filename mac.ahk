@@ -124,7 +124,7 @@ $!+Backspace::
         FileRecycleEmpty
     Return
 
-#if is_not_fullscreen()
+#if is_not_fullscreen() or WinActive("ahk_exe explorer.exe") ; focus on the desktop
     $^Space::Send {LWinDown}{Space}{LWin Up}
 #if
 
