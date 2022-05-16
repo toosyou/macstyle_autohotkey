@@ -91,6 +91,7 @@ $Pause::Send {Volume_Up}
 ; vscode 
 $!,::Send ^,
 $!.::Send ^.
+$!p::Send ^p
 $!+p::Send ^+p
 $!Enter::Send ^{Enter}
 
@@ -116,11 +117,23 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 
 ; $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
-$^Space::Send {LWinDown}{Space}{LWin Up}
-
 $!LButton::Send ^{LButton}
 $!+Backspace::
     MsgBox, 3, Confirm, Clean the recycle bin?
     IfMsgBox Yes
         FileRecycleEmpty
     Return
+
+#if is_not_fullscreen()
+    $^Space::Send {LWinDown}{Space}{LWin Up}
+#if
+
+is_not_fullscreen()
+{
+    WinGet style, Style, A
+	WinGetPos ,,,winW, winH, A
+	; 0x800000 is WS_BORDER.
+	; 0x20000000 is WS_MINIMIZE.
+	; no border and not minimized
+	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth)
+}
