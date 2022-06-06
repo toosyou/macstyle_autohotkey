@@ -66,7 +66,18 @@ $!+4::Send {LWinDown}{ShiftDown}{s}{ShiftUp}{LWinUp}
 
 ; $+,::Send ^,
 ; $+.::Send ^.
-$!Space::Send {Alt Down}{Shift Down}{Alt Up}{Shift Up}
+$!Space::
+    Send {Alt Down}{Shift Down}{Alt Up}{Shift Up}
+    WinGet, WinID,, A
+	thread_id := DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
+	current_language := DllCall("GetKeyboardLayout", "UInt", thread_id, "UInt")
+
+    if (current_language == 0x04040404){ ; zh-cht
+        SetCapsLockState, off
+        IME_SetConvMode(1025) ; to chinese
+    }
+
+    Return
 
 $CapsLock::
     WinGet, WinID,, A
@@ -128,12 +139,35 @@ $!+Backspace::
     $^Space::Send {LWinDown}{Space}{LWin Up}
 #if
 
-is_not_fullscreen()
-{
+is_not_fullscreen() {
     WinGet style, Style, A
 	WinGetPos ,,,winW, winH, A
 	; 0x800000 is WS_BORDER.
 	; 0x20000000 is WS_MINIMIZE.
 	; no border and not minimized
 	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth)
+}
+
+GetGUIThreadInfo_hwndActive(WinTitle="A")
+{
+	ControlGet, hwnd, HWND,,, %WinTitle%
+	if (WinActive(WinTitle)) {
+		ptrSize := !A_PtrSize ? 4 : A_PtrSize
+		VarSetCapacity(stGTI, cbSize:=4+4+(PtrSize*6)+16, 0)
+		NumPut(cbSize, stGTI,  0, "UInt")
+		return hwnd := DllCall("GetGUIThreadInfo", "Uint", 0, "Ptr", &stGTI)
+				 ? NumGet(stGTI, 8+PtrSize, "Ptr") : hwnd
+	}
+	else {
+		return hwnd
+	}
+}
+
+IME_SetConvMode(ConvMode, WinTitle="A")   {
+    hwnd :=GetGUIThreadInfo_hwndActive(WinTitle)
+    return DllCall("SendMessage"
+          , "Ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "Ptr", hwnd)
+          , "UInt", 0x0283      ;Message : WM_IME_CONTROL
+          , "UPtr", 0x002       ;wParam  : IMC_SETCONVERSIONMODE
+          ,  "Ptr", ConvMode)   ;lParam  : CONVERSIONMODE
 }
