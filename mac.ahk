@@ -3,12 +3,36 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
+#Include %A_ScriptDir%\WatchFolder.ahk
+
+; automaticly copy screenshots to a folder
+WatchFolder("C:\Users\" . A_UserName . "\AppData\Local\Packages\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\TempState\ScreenClip", "copy_screenshots", , Watch := 1)
+
+copy_screenshots(path, changes) {
+    for k, change in changes{
+        if (change.action == 1){ ; new file
+            if (SubStr(change.name, -2) == "png"){
+                height = 0
+                width  = 0
+                get_img_size(change.name, width, height)
+                if (width != 364 && height !=180){ ; not the thumbnail
+                    FormatTime, time_string, ,yyyy-MM-dd-HH-mm-ss
+                    FileCopy, % change.name, C:\Users\%A_UserName%\Documents\Screenshots\%time_string%.png
+                    return
+                }
+            }
+        }
+    }
+}
+
 ; Docs:
 ; https://autohotkey.com/docs/Hotkeys.htm
 ; https://autohotkey.com/docs/KeyList.htm
 ; Ref https://autohotkey.com/board/topic/60675-osx-style-command-keys-in-windows/
 
 ; You need to disable "Between input languages" shotcut from Control Panel\Clock, Language, and Region\Language\Advanced settings > Change lanugage bar hot keys
+
+SetTitleMatchMode, 2
 
 ; Universal shotcuts
 
@@ -58,6 +82,13 @@ $!-::Send ^{-}
 
 $!+n::Send ^+n
 
+#IfWinActive ahk_exe chrome.exe
+    $!q::
+        If (A_ThisHotkey = A_PriorHotkey and A_TimeSincePriorHotkey < 200)
+            Send !{f4}
+        return
+#If
+
 ; Screenshots
 
 $!+4::Send {LWinDown}{ShiftDown}{s}{ShiftUp}{LWinUp}
@@ -67,14 +98,20 @@ $!+4::Send {LWinDown}{ShiftDown}{s}{ShiftUp}{LWinUp}
 ; $+,::Send ^,
 ; $+.::Send ^.
 $!Space::
-    Send {Alt Down}{Shift Down}{Alt Up}{Shift Up}
     WinGet, WinID,, A
 	thread_id := DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
 	current_language := DllCall("GetKeyboardLayout", "UInt", thread_id, "UInt")
 
-    if (current_language == 0x04040404){ ; zh-cht
+    if (current_language == 0x04040404){ ; zh-cht in en mode
+        if (IME_GetConvMode() == 0){ ; en mode 
+            IME_SetConvMode(1) ; to chinese
+        }else{
+            Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
+        }
+    }else{ ; en
+        Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
         SetCapsLockState, off
-        IME_SetConvMode(1025) ; to chinese
+        IME_SetConvMode(1) ; to chinese
     }
 
     Return
@@ -148,8 +185,7 @@ is_not_fullscreen() {
 	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth)
 }
 
-GetGUIThreadInfo_hwndActive(WinTitle="A")
-{
+GetGUIThreadInfo_hwndActive(WinTitle="A") {
 	ControlGet, hwnd, HWND,,, %WinTitle%
 	if (WinActive(WinTitle)) {
 		ptrSize := !A_PtrSize ? 4 : A_PtrSize
@@ -170,4 +206,21 @@ IME_SetConvMode(ConvMode, WinTitle="A")   {
           , "UInt", 0x0283      ;Message : WM_IME_CONTROL
           , "UPtr", 0x002       ;wParam  : IMC_SETCONVERSIONMODE
           ,  "Ptr", ConvMode)   ;lParam  : CONVERSIONMODE
+}
+
+IME_GetConvMode(WinTitle="A") {
+    hwnd :=GetGUIThreadInfo_hwndActive(WinTitle)
+    return DllCall("SendMessage"
+    , "Ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "Ptr", hwnd)
+    , "UInt", 0x0283
+    , "Int", 0x001
+    , "Int", 0) & 0xffff
+}
+
+get_img_size(img, ByRef width , ByRef height) { ; Get image's dimensions
+    If FileExist(img) {
+        GUI, Add, Picture, hwndpic, %img%
+        ControlGetPos,,, width, height,, ahk_id %pic%
+        Gui, Destroy
+    } Else height := width := 0
 }
