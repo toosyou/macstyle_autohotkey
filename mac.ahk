@@ -34,6 +34,8 @@ copy_screenshots(path, changes) {
 
 SetTitleMatchMode, 2
 
+~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
+
 ; Universal shotcuts
 
 $!x::Send ^x
@@ -87,7 +89,7 @@ $!+n::Send ^+n
         If (A_ThisHotkey = A_PriorHotkey and A_TimeSincePriorHotkey < 200)
             Send !{f4}
         return
-#If
+#IfWinActive
 
 ; Screenshots
 
@@ -110,8 +112,8 @@ $!Space::
         }
     }else{ ; en
         Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
-        SetCapsLockState, off
         IME_SetConvMode(1) ; to chinese
+        SetCapsLockState, off
     }
 
     Return
@@ -141,7 +143,6 @@ $!,::Send ^,
 $!.::Send ^.
 $!p::Send ^p
 $!+p::Send ^+p
-$!Enter::Send ^{Enter}
 
 ; navigation, selection, delete a word/till end
 
