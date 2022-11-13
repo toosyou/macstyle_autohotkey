@@ -118,8 +118,9 @@ $!Space::
         }
     }else{ ; en
         Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
-        IME_SetConvMode(1) ; to chinese
         SetCapsLockState, off
+        Sleep 100
+        IME_SetConvMode(1) ; to chinese
     }
 
     Return
