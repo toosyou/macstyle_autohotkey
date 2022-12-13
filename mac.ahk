@@ -39,8 +39,6 @@ copy_screenshots(path, changes) {
 ; You need to disable "Between input languages" shotcut from Control Panel\Clock, Language, and Region\Language\Advanced settings > Change lanugage bar hot keys
 
 SetTitleMatchMode, 2
-~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
-~RAlt::Send {Blind}{vkE8} ; remove alt menu selection
 
 ; Universal shotcuts
 
@@ -95,6 +93,9 @@ $!+n::Send ^+n
         If (A_ThisHotkey = A_PriorHotkey and A_TimeSincePriorHotkey < 200)
             Send !{f4}
         return
+
+    ~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
+    ~RAlt::Send {Blind}{vkE8} ; remove alt menu selection
 #IfWinActive
 
 ; Screenshots
