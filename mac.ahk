@@ -115,16 +115,26 @@ $!Space::
         if (IME_GetConvMode() == 0){ ; en mode 
             IME_SetConvMode(1) ; to chinese
         }else{
-            Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
+            SetDefaultKeyboard(0x0409) ; to en
         }
     }else{ ; en
-        Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
-        SetCapsLockState, off
-        Sleep 100
-        IME_SetConvMode(1) ; to chinese
+        SetDefaultKeyboard(0x0404) ; to zh-cht
     }
-
     Return
+
+SetDefaultKeyboard(LocaleID){
+	Static SPI_SETDEFAULTINPUTLANG := 0x005A, SPIF_SENDWININICHANGE := 2
+	
+	Lan := DllCall("LoadKeyboardLayout", "Str", Format("{:08x}", LocaleID), "Int", 0)
+	VarSetCapacity(binaryLocaleID, 4, 0)
+	NumPut(LocaleID, binaryLocaleID)
+	DllCall("SystemParametersInfo", "UInt", SPI_SETDEFAULTINPUTLANG, "UInt", 0, "UPtr", &binaryLocaleID, "UInt", SPIF_SENDWININICHANGE)
+	
+	WinGet, windows, List
+	Loop % windows {
+		PostMessage 0x50, 0, % Lan, , % "ahk_id " windows%A_Index%
+	}
+}
 
 $CapsLock::
     WinGet, WinID,, A
