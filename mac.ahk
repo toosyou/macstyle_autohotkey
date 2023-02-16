@@ -94,8 +94,8 @@ $!+n::Send ^+n
             Send !{f4}
         return
 
-    ~LAlt::Send {Ctrl} ; remove alt menu selection
-    ~RAlt::Send {Ctrl} ; remove alt menu selection
+    ~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
+    ~RAlt::Send {Blind}{vkE8} ; remove alt menu selection
 #IfWinActive
 
 ; Screenshots
@@ -110,20 +110,36 @@ $!Space::
     WinGet, WinID,, A
 	thread_id := DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
 	current_language := DllCall("GetKeyboardLayout", "UInt", thread_id, "UInt")
+#NoEnv
+#SingleInstance, Force
+SendMode, Input
+SetBatchLines, -1
+SetWorkingDir, %A_ScriptDir%
 
     if (current_language == 0x04040404){ ; zh-cht in en mode
         if (IME_GetConvMode() == 0){ ; en mode 
             IME_SetConvMode(1) ; to chinese
         }else{
-            Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
+            SetDefaultKeyboard(0x0409) ; to en
         }
     }else{ ; en
-        Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
-        Sleep 100
-        IME_SetConvMode(1) ; to chinese
-        SetCapsLockState, off
+        SetDefaultKeyboard(0x0404) ; to zh-cht
     }
     Return
+
+SetDefaultKeyboard(LocaleID){
+	Static SPI_SETDEFAULTINPUTLANG := 0x005A, SPIF_SENDWININICHANGE := 2
+	
+	Lan := DllCall("LoadKeyboardLayout", "Str", Format("{:08x}", LocaleID), "Int", 0)
+	VarSetCapacity(binaryLocaleID, 4, 0)
+	NumPut(LocaleID, binaryLocaleID)
+	DllCall("SystemParametersInfo", "UInt", SPI_SETDEFAULTINPUTLANG, "UInt", 0, "UPtr", &binaryLocaleID, "UInt", SPIF_SENDWININICHANGE)
+	
+	WinGet, windows, List
+	Loop % windows {
+		PostMessage 0x50, 0, % Lan, , % "ahk_id " windows%A_Index%
+	}
+}
 
 $CapsLock::
     WinGet, WinID,, A
