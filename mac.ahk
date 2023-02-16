@@ -94,8 +94,8 @@ $!+n::Send ^+n
             Send !{f4}
         return
 
-    ~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
-    ~RAlt::Send {Blind}{vkE8} ; remove alt menu selection
+    ~LAlt::Send {Ctrl} ; remove alt menu selection
+    ~RAlt::Send {Ctrl} ; remove alt menu selection
 #IfWinActive
 
 ; Screenshots
@@ -119,11 +119,10 @@ $!Space::
         }
     }else{ ; en
         Send {Alt Down}{Shift Down}{Shift Up}{Alt Up}
-        SetCapsLockState, off
         Sleep 100
         IME_SetConvMode(1) ; to chinese
+        SetCapsLockState, off
     }
-
     Return
 
 $CapsLock::
