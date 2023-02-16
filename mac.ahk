@@ -94,8 +94,8 @@ $!+n::Send ^+n
             Send !{f4}
         return
 
-    ~LAlt::Send {Blind}{vkE8} ; remove alt menu selection
-    ~RAlt::Send {Blind}{vkE8} ; remove alt menu selection
+    ~LAlt up::Send {Blind}{vkE8} ; remove alt menu selection
+    ~RAlt up::Send {Blind}{vkE8} ; remove alt menu selection
 #IfWinActive
 
 ; Screenshots
@@ -110,12 +110,8 @@ $!Space::
     WinGet, WinID,, A
 	thread_id := DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
 	current_language := DllCall("GetKeyboardLayout", "UInt", thread_id, "UInt")
-#NoEnv
-#SingleInstance, Force
-SendMode, Input
-SetBatchLines, -1
-SetWorkingDir, %A_ScriptDir%
 
+    Critical, On
     if (current_language == 0x04040404){ ; zh-cht in en mode
         if (IME_GetConvMode() == 0){ ; en mode 
             IME_SetConvMode(1) ; to chinese
