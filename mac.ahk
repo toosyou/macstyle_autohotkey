@@ -162,6 +162,7 @@ $!,::Send ^,
 $!.::Send ^.
 $!p::Send ^p
 $!+p::Send ^+p
+$!+f::Send ^+f
 
 ; navigation, selection, delete a word/till end
 
