@@ -45,6 +45,7 @@ SetTitleMatchMode, 2
 $!x::Send ^x
 $!c::Send ^c
 $!v::Send ^v
+$!+v::Send ^+v
 $!s::Send ^s
 $!a::Send ^a
 $!z::Send ^z
@@ -186,7 +187,6 @@ $!+Down::Send {Ctrl Down}{shift down}{End}{shift up}{Ctrl Up}
 
 ; $#Space::Send {Ctrl Down}{LWin Down}{Space}{LWin Up}{Ctrl Up}
 
-$!LButton::Send ^{LButton}
 $!+Backspace::
     MsgBox, 3, Confirm, Clean the recycle bin?
     IfMsgBox Yes
@@ -195,6 +195,7 @@ $!+Backspace::
 
 #if is_not_fullscreen() or WinActive("ahk_exe explorer.exe") ; focus on the desktop
     $^Space::Send {LWinDown}{Space}{LWin Up}
+    $!LButton::Send ^{LButton}
 #if
 
 is_not_fullscreen() {
