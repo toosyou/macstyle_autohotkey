@@ -60,9 +60,6 @@ $!`::Send {Alt Down}{Shift Down}{Tab}{Shift Up}
 
 $F11::Send #d ; show desktop
 
-; delete
-$!Backspace:: Send ^d
-
 ; Quick Switch Tab shotcuts
 
 $!1::Send ^1
@@ -89,7 +86,7 @@ $!-::Send ^{-}
 
 $!+n::Send ^+n
 
-#IfWinActive ahk_exe chrome.exe
+#IfWinActive ahk_exe chrome.exe || ahk_exe Code.exe
     $!q::
         If (A_ThisHotkey = A_PriorHotkey and A_TimeSincePriorHotkey < 200)
             Send !{f4}
@@ -98,6 +95,11 @@ $!+n::Send ^+n
     ~LAlt up::Send {Blind}{vkE8} ; remove alt menu selection
     ~RAlt up::Send {Blind}{vkE8} ; remove alt menu selection
 #IfWinActive
+
+; delete
+#IfWinNotActive ahk_exe chrome.exe
+    $!Backspace:: Send ^d
+#IfWinNotActive
 
 ; Screenshots
 
@@ -122,6 +124,17 @@ $!Space::
     }else{ ; en
         SetDefaultKeyboard(0x0404) ; to zh-cht
     }
+
+    If GetKeyState("Alt")           ; If the OS believes the key to be in (logical state),
+    {
+        If !GetKeyState("Alt","P")  ; but  the user isn't physically holding it down (physical state)
+        {
+            Send {Blind}{Alt Up}
+            MsgBox,,, Alt released
+            KeyHistory
+        }
+    }
+
     Return
 
 SetDefaultKeyboard(LocaleID){
@@ -151,6 +164,17 @@ $CapsLock::
     }
     
     KeyWait, CapsLock
+
+    If GetKeyState("Alt")           ; If the OS believes the key to be in (logical state),
+    {
+        If !GetKeyState("Alt","P")  ; but  the user isn't physically holding it down (physical state)
+        {
+            Send {Blind}{Alt Up}
+            MsgBox,,, Alt released
+            KeyHistory
+        }
+    }
+
     Return
 
 ; volume control
