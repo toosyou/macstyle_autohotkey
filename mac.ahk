@@ -86,7 +86,7 @@ $!-::Send ^{-}
 
 $!+n::Send ^+n
 
-#IfWinActive ahk_exe chrome.exe || ahk_exe Code.exe
+#If WinActive("ahk_exe chrome.exe") or WinActive("ahk_exe Code.exe")
     $!q::
         If (A_ThisHotkey = A_PriorHotkey and A_TimeSincePriorHotkey < 200)
             Send !{f4}
@@ -94,7 +94,7 @@ $!+n::Send ^+n
 
     ~LAlt up::Send {Blind}{vkE8} ; remove alt menu selection
     ~RAlt up::Send {Blind}{vkE8} ; remove alt menu selection
-#IfWinActive
+#If
 
 ; delete
 #IfWinNotActive ahk_exe chrome.exe
