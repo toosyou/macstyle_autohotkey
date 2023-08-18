@@ -75,8 +75,6 @@ $!0::Send ^0
 
 ; Chrome shotcuts
 
-$!t::Send ^t
-$!+t::Send ^+t
 $!+]::Send {Ctrl Down}{Tab Down}{Tab Up}{Ctrl Up}
 $!+[::Send {Ctrl Down}{Shift Down}{Tab Down}{Tab Up}{Shift Up}{Ctrl Up}
 $!l::Send ^l
@@ -220,6 +218,9 @@ $!+Backspace::
 #if is_not_fullscreen() or WinActive("ahk_exe explorer.exe") ; focus on the desktop
     $^Space::Send {LWinDown}{Space}{LWin Up}
     $!LButton::Send ^{LButton}
+
+    $!t::Send ^t ; chrome new tab
+    $!+t::Send ^+t ; chrome new tab
 #if
 
 is_not_fullscreen() {
