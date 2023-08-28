@@ -221,6 +221,8 @@ $!+Backspace::
 
     $!t::Send ^t ; chrome new tab
     $!+t::Send ^+t ; chrome new tab
+
+    ~Shift::vkFF ; remove shift function
 #if
 
 is_not_fullscreen() {
