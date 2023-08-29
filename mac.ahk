@@ -123,16 +123,6 @@ $!Space::
         SetDefaultKeyboard(0x0404) ; to zh-cht
     }
 
-    If GetKeyState("Alt")           ; If the OS believes the key to be in (logical state),
-    {
-        If !GetKeyState("Alt","P")  ; but  the user isn't physically holding it down (physical state)
-        {
-            Send {Blind}{Alt Up}
-            MsgBox,,, Alt released
-            KeyHistory
-        }
-    }
-
     Return
 
 SetDefaultKeyboard(LocaleID){
@@ -156,22 +146,13 @@ $CapsLock::
 
     if (current_language == 0x04040404){ ; zh-cht
         SetCapsLockState, off
-        Send {LShift}
+        ; Send {LShift}
+        IME_SetConvMode(1 - IME_GetConvMode())
     }else{ ; en
         SetCapsLockState % !GetKeyState("CapsLock", "T") ; toggle capslock 
     }
     
     KeyWait, CapsLock
-
-    If GetKeyState("Alt")           ; If the OS believes the key to be in (logical state),
-    {
-        If !GetKeyState("Alt","P")  ; but  the user isn't physically holding it down (physical state)
-        {
-            Send {Blind}{Alt Up}
-            MsgBox,,, Alt released
-            KeyHistory
-        }
-    }
 
     Return
 
@@ -222,7 +203,6 @@ $!+Backspace::
     $!t::Send ^t ; chrome new tab
     $!+t::Send ^+t ; chrome new tab
 
-    ~Shift::vkFF ; remove shift function
 #if
 
 is_not_fullscreen() {
