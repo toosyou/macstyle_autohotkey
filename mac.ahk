@@ -146,8 +146,7 @@ $CapsLock::
 
     if (current_language == 0x04040404){ ; zh-cht
         SetCapsLockState, off
-        ; Send {LShift}
-        IME_SetConvMode(1 - IME_GetConvMode())
+        Send {RShift}
     }else{ ; en
         SetCapsLockState % !GetKeyState("CapsLock", "T") ; toggle capslock 
     }
