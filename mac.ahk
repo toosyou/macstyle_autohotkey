@@ -40,6 +40,9 @@ copy_screenshots(path, changes) {
 
 SetTitleMatchMode, 2
 
+; Suspend hotkeys
+$^!F1::Suspend
+
 ; Universal shotcuts
 
 $!x::Send ^x
@@ -159,6 +162,10 @@ $CapsLock::
 $PrintScreen::Send {Volume_Mute}
 $Scrolllock::Send {Volume_Down}
 $Pause::Send {Volume_Up}
+
+; monitor contorl
+$!\::SendMessage 0x112, 0xF170, 2, , Program Manager ; alt + \ turn monitor off
+
 
 ; vscode 
 $!,::Send ^,
