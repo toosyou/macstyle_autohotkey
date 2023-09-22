@@ -164,7 +164,10 @@ $Scrolllock::Send {Volume_Down}
 $Pause::Send {Volume_Up}
 
 ; monitor contorl
-$!\::SendMessage 0x112, 0xF170, 2, , Program Manager ; alt + \ turn monitor off
+$!\::
+    Sleep 1000
+    SendMessage 0x112, 0xF170, 2, , Program Manager ; Monitor off
+    Return
 
 
 ; vscode 
