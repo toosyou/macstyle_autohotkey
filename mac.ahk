@@ -93,8 +93,14 @@ $!+n::Send ^+n
             Send !{f4}
         return
 
-    ~LAlt up::Send {Blind}{vkE8} ; remove alt menu selection
-    ~RAlt up::Send {Blind}{vkE8} ; remove alt menu selection
+    Alt::
+        KeyWait, Alt
+        return
+
+    LAlt Up::
+        if (A_PriorKey = "Alt")
+            return
+        return
 #If
 
 ; delete
