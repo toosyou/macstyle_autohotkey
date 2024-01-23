@@ -125,11 +125,14 @@ $!Space::
     if (current_language == 0x04040404){ ; zh-cht in en mode
         if (IME_GetConvMode() == 0){ ; en mode 
             IME_SetConvMode(1) ; to chinese
+            SetCapsLockState, off
         }else{
             SetDefaultKeyboard(0x0409) ; to en
         }
     }else{ ; en
         SetDefaultKeyboard(0x0404) ; to zh-cht
+        IME_SetConvMode(1)
+        SetCapsLockState, off
     }
 
     Return
