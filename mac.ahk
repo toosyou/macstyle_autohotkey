@@ -9,28 +9,6 @@ if not A_IsAdmin
    ExitApp
 }
 
-#Include %A_ScriptDir%\WatchFolder.ahk
-
-; automaticly copy screenshots to a folder
-WatchFolder("C:\Users\" . A_UserName . "\AppData\Local\Packages\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\TempState\ScreenClip", "copy_screenshots", , Watch := 1)
-
-copy_screenshots(path, changes) {
-    for k, change in changes{
-        if (change.action == 1){ ; new file
-            if (SubStr(change.name, -2) == "png"){
-                height = 0
-                width  = 0
-                get_img_size(change.name, width, height)
-                if (width != 364 && height !=180){ ; not the thumbnail
-                    FormatTime, time_string, ,yyyy-MM-dd-HH-mm-ss
-                    FileCopy, % change.name, C:\Users\%A_UserName%\Documents\Screenshots\%time_string%.png
-                    return
-                }
-            }
-        }
-    }
-}
-
 ; Docs:
 ; https://autohotkey.com/docs/Hotkeys.htm
 ; https://autohotkey.com/docs/KeyList.htm
