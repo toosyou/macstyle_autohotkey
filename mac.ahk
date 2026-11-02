@@ -181,18 +181,15 @@ $!PrintScreen::
 Return
 
 $F24::
-    Run nircmd.exe muteappvolume Discord.exe 0
-    Run nircmd.exe changeappvolume Discord.exe 0.1
-    discord_volume := FindAppVolume("Discord.exe") * 100
+    FindAppVolume("Discord.exe", "mute", 0)
+    discord_volume := FindAppVolume("Discord.exe", "change", 0.1) * 100
     ShowVolumeOSD(discord_volume, false, "Discord")
 Return
 
 $F23::
     discord_volume := FindAppVolume("Discord.exe") * 100
-    if (discord_volume > 11){
-        Run nircmd.exe changeappvolume Discord.exe -0.1
-        discord_volume := discord_volume - 10
-    }
+    if (discord_volume > 11)
+        discord_volume := FindAppVolume("Discord.exe", "change", -0.1) * 100
     ShowVolumeOSD(discord_volume, false, "Discord")
 Return
 
@@ -202,8 +199,8 @@ $F22::
 Return
 
 $F21:: ; reset volume
-    Run nircmd.exe muteappvolume Discord.exe 0
-    Run nircmd.exe setappvolume Discord.exe 1.0
+    FindAppVolume("Discord.exe", "mute", 0)
+    FindAppVolume("Discord.exe", "set", 1.0)
     FindAppVolume("chrome.exe", "mute", 0)
     FindAppVolume("chrome.exe", "set", 1.0)
     ShowVolumeOSD(100, false, "Reset")
@@ -238,8 +235,11 @@ $!+f::Send ^+f
 
 ; navigation, selection, delete a word/till end
 
-$!Left::Send {Home}
-$!Right::Send {End}
+#If GetKeyState("Alt", "P")
+    *Left::Send {Blind}{vkE8}{Alt up}{Home}
+    *Right::Send {Blind}{vkE8}{Alt up}{End}
+#If
+
 $!Up::Send {Lctrl down}{Home}{Lctrl up}
 $!Down::Send {Lctrl down}{End}{Lctrl up}
 
@@ -303,6 +303,24 @@ IME_SetConvMode(ConvMode, WinTitle="A")   {
           , "UInt", 0x0283      ;Message : WM_IME_CONTROL
           , "UPtr", 0x002       ;wParam  : IMC_SETCONVERSIONMODE
           ,  "Ptr", ConvMode)   ;lParam  : CONVERSIONMODE
+}
+
+IME_SetOpenStatus(Status, WinTitle="A") {
+    hwnd :=GetGUIThreadInfo_hwndActive(WinTitle)
+    return DllCall("SendMessage"
+          , "Ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "Ptr", hwnd)
+          , "UInt", 0x0283      ;Message : WM_IME_CONTROL
+          , "UPtr", 0x006       ;wParam  : IMC_SETOPENSTATUS
+          ,  "Ptr", Status)     ;lParam  : 0 closed, 1 open
+}
+
+IME_GetOpenStatus(WinTitle="A") {
+    hwnd :=GetGUIThreadInfo_hwndActive(WinTitle)
+    return DllCall("SendMessage"
+          , "Ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "Ptr", hwnd)
+          , "UInt", 0x0283      ;Message : WM_IME_CONTROL
+          , "UPtr", 0x005       ;wParam  : IMC_GETOPENSTATUS
+          ,  "Ptr", 0)
 }
 
 IME_GetConvMode(WinTitle="A") {
@@ -408,9 +426,9 @@ ShowVolumeOSD(percent, muted := false, label := "") {
 }
 
 
-; op: "get" (default) returns the volume of a matching session (0..1);
+; op: "get" (default) returns the loudest active session's volume (0..1);
 ;     "set"    sets every matching session to `value` (0..1);
-;     "change" adds `value` to every matching session, clamped to 0..1;
+;     "change" adds `value` to the "get" level and sets every session to it;
 ;     "mute"   applies `value` to every matching session (0 unmute, 1 mute, 2 toggle),
 ;              returns the resulting mute state.
 ; Chrome spawns several audio sessions (e.g. "Google Chrome" and
@@ -422,6 +440,14 @@ FindAppVolume(appName, op := "get", value := 0)
         WinGet, activePID, ID, A
         WinGet, activeName, ProcessName, ahk_id %activePID%
         appName := activeName
+    }
+
+    ; Sessions of one app can sit at different levels, so resolve a relative
+    ; change against a single reference level and write it to every session.
+    if ( op = "change" )
+    {
+        newVolume := FindAppVolume(appName) + value
+        Return FindAppVolume(appName, "set", newVolume)
     }
 
     IMMDeviceEnumerator := ComObjCreate( "{BCDE0395-E52F-467C-8E3D-C4579291692E}", "{A95664D2-9614-4F35-A746-DE8DB63617E6}" )
@@ -440,6 +466,8 @@ FindAppVolume(appName, op := "get", value := 0)
 
     result := ""
     muteTarget := ""
+    activeMax := ""
+    anyMax := ""
     Loop % SessionCount
     {
         DllCall( NumGet( NumGet( IAudioSessionEnumerator+0 ) + 4*A_PtrSize ), "UPtr", IAudioSessionEnumerator, "Int", A_Index-1, "UPtrP", IAudioSessionControl, "UInt" )
@@ -462,9 +490,9 @@ FindAppVolume(appName, op := "get", value := 0)
                 ISimpleAudioVolume := ComObjQuery(IAudioSessionControl2, "{87CE5498-68D6-44E5-9215-6DA47EF883D8}")
                 DllCall( NumGet( NumGet( ISimpleAudioVolume+0 ) + 4*A_PtrSize ), "UPtr", ISimpleAudioVolume, "FloatP", curVolume, "UInt" )
 
-                if ( op = "set" || op = "change" )
+                if ( op = "set" )
                 {
-                    newVolume := ( op = "set" ) ? value : curVolume + value
+                    newVolume := value
                     if ( newVolume < 0 )
                         newVolume := 0
                     else if ( newVolume > 1 )
@@ -488,7 +516,14 @@ FindAppVolume(appName, op := "get", value := 0)
                     result := muteTarget
                 }
                 else
-                    result := curVolume
+                {
+                    ; IAudioSessionControl::GetState (vtable 3), 1 = AudioSessionStateActive
+                    DllCall( NumGet( NumGet( IAudioSessionControl2+0 ) + 3*A_PtrSize ), "UPtr", IAudioSessionControl2, "IntP", state, "UInt" )
+                    if ( anyMax = "" || curVolume > anyMax )
+                        anyMax := curVolume
+                    if ( state = 1 && ( activeMax = "" || curVolume > activeMax ) )
+                        activeMax := curVolume
+                }
 
                 ObjRelease(ISimpleAudioVolume)
             }
@@ -496,6 +531,11 @@ FindAppVolume(appName, op := "get", value := 0)
         ObjRelease(IAudioSessionControl2)
     }
     ObjRelease(IAudioSessionEnumerator)
+
+    ; "get": report the loudest session that is playing, else the loudest overall,
+    ; rather than whichever session happened to be enumerated last
+    if ( op = "get" )
+        result := ( activeMax != "" ) ? activeMax : anyMax
 
 	Return result
 
